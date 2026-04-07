@@ -7,7 +7,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white">
       <header className="mb-10">
-        <h1 className="text-4xl font-extrabold mb-4">{t('dashboard')}</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('dashboard')}</h1>
         <p className="text-xl opacity-70">{t('heroSubtitle')}</p>
       </header>
       
