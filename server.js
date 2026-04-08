@@ -13,26 +13,7 @@ const supabase = createClient(
 const app = express();
 app.use(cors());
 
-// --- Motor de Crescimento IA (Simulado via API) ---
-// Em um cenário real, estas rotas chamariam APIs do Google Ads, Meta Ads e OpenAI
-app.post('/api/ia/start-growth', async (req, res) => {
-  const { userId, plan } = req.body;
-  console.log(`🚀 Iniciando Motor de Crescimento IA para o usuário ${userId} no plano ${plan}`);
-  
-  // Lógica de Autonomia: Criação de Campanhas, SEO e Otimização de ROI
-  // 1. IA Analisa o nicho do SaaS
-  // 2. IA Cria 10 variações de Copywriting para Ads
-  // 3. IA Configura Lances Automáticos (Bidding)
-  // 4. IA Gera 5 Artigos de SEO por semana
-  
-  res.json({ 
-    success: true, 
-    message: 'Equipe de IA ativada e trabalhando nas suas campanhas de tráfego.',
-    agentes: ['Ads Expert IA', 'SEO Master IA', 'Copywriter Pro IA']
-  });
-});
-
-// Webhook para Autonomia Total (Stripe -> Supabase)
+// --- Webhook Blindado (Stripe -> Supabase) ---
 app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -49,7 +30,7 @@ app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), async (re
     const session = event.data.object;
     const { userId, plan } = session.metadata;
 
-    // 1. Liberação de Acesso no Supabase
+    // Atualização Autônoma no Supabase
     const { error } = await supabase
       .from('subscriptions')
       .upsert({
@@ -61,17 +42,17 @@ app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), async (re
         current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
       });
 
-    if (error) console.error('❌ Erro Supabase:', error);
-    else console.log(`✅ Acesso liberado para ${userId} no plano ${plan}`);
-
-    // 2. Disparo automático do Motor de Crescimento IA após pagamento
-    console.log(`🤖 IA: Iniciando geração de tráfego para o novo assinante ${userId}`);
+    if (error) {
+      console.error('❌ Erro Supabase:', error);
+    } else {
+      console.log(`✅ FATURAMENTO: Renda gerada para ${userId} no plano ${plan}`);
+    }
   }
 
   res.json({ received: true });
 });
 
-// Checkout Session com Valores Reais e Metadata para IA
+// --- Criação de Checkout Real ---
 app.use(bodyParser.json());
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
@@ -84,8 +65,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
         price_data: {
           currency: 'brl',
           product_data: { 
-            name: `Assinatura ${plan} - Meu SaaS Elite (Com Tráfego IA)`,
-            description: `Acesso completo + Equipe de IA gerando tráfego para seu negócio.`
+            name: `Assinatura ${plan} - Meu SaaS Elite`,
+            description: `Acesso VIP + Equipe de IA Autônoma Ativada.`
           },
           unit_amount: prices[plan] || 9900,
         },
@@ -105,4 +86,4 @@ app.post('/api/create-checkout-session', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`🚀 Servidor com Motor IA rodando na porta ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Sistema de Faturamento Online na porta ${PORT}`));
