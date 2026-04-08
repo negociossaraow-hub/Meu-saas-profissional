@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { supabase } from './supabaseClient'
 import { useTranslation } from 'react-i18next'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import './i18n'
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
@@ -151,6 +152,7 @@ function App() {
           </div>
         </div>
       </div>
+      <SpeedInsights />
     </div>
   )
 }
