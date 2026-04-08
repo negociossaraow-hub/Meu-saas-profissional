@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { supabase } from './supabaseClient'
 import { useTranslation } from 'react-i18next'
+import { Analytics } from '@vercel/analytics/react'
 import './i18n'
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
@@ -34,13 +35,15 @@ function App() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
-      color: 'white',
-      padding: '20px',
-      fontFamily: 'Inter, system-ui, sans-serif'
-    }}>
+    <>
+      <Analytics />
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+        color: 'white',
+        padding: '20px',
+        fontFamily: 'Inter, system-ui, sans-serif'
+      }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <nav style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
           <button 
@@ -152,6 +155,7 @@ function App() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
