@@ -1,27 +1,29 @@
 {
   "name": "meu-saas",
   "version": "1.0.0",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "server": "node server.js",
-    "start": "concurrently \"npm run dev\" \"npm run server\"",
-    "build": "vite build"
+    "start": "concurrently \"npm run dev\" \"npm run server\""
   },
   "dependencies": {
-    "@stripe/stripe-js": "^9.1.0",
-    "@supabase/supabase-js": "^2.102.1",
-    "body-parser": "^2.2.2",
-    "concurrently": "^9.2.1",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.1",
-    "express": "^5.2.1",
-    "i18next": "^26.0.3",
-    "i18next-browser-languagedetector": "^8.2.1",
+    "@stripe/stripe-js": "^2.1.0",
+    "@supabase/supabase-js": "^2.38.4",
+    "body-parser": "^1.20.2",
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "i18next": "^23.7.6",
+    "i18next-browser-languagedetector": "^7.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-i18next": "^17.0.2",
+    "react-i18next": "^13.5.0",
     "react-router-dom": "^6.8.0",
-    "stripe": "^22.0.0"
+    "stripe": "^14.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
