@@ -6,18 +6,28 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
+  process.env.VITE_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
 );
 
 const app = express();
 app.use(cors());
+
+// Rota de Teste de Saúde do Sistema
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'SaaS Elite Online', time: new Date().toISOString() });
+});
 
 // --- Webhook Blindado (Stripe -> Supabase) ---
 app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   let event;
+
+  if (!endpointSecret) {
+    console.error('❌ Erro: STRIPE_WEBHOOK_SECRET não configurado.');
+    return res.status(500).send('Webhook Secret missing');
+  }
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
@@ -30,7 +40,6 @@ app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), async (re
     const session = event.data.object;
     const { userId, plan } = session.metadata;
 
-    // Atualização Autônoma no Supabase
     const { error } = await supabase
       .from('subscriptions')
       .upsert({
@@ -42,22 +51,23 @@ app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), async (re
         current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
       });
 
-    if (error) {
-      console.error('❌ Erro Supabase:', error);
-    } else {
-      console.log(`✅ FATURAMENTO: Renda gerada para ${userId} no plano ${plan}`);
-    }
+    if (error) console.error('❌ Erro Supabase:', error);
+    else console.log(`✅ FATURAMENTO: Renda gerada para ${userId} no plano ${plan}`);
   }
 
   res.json({ received: true });
 });
 
-// --- Criação de Checkout Real ---
+// --- Checkout Session ---
 app.use(bodyParser.json());
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { plan, userId, successUrl, cancelUrl } = req.body;
     const prices = { 'Starter': 9900, 'Professional': 29900, 'Elite': 99900 };
+
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY não configurado na Vercel.');
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
