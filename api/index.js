@@ -25,14 +25,12 @@ app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), async (re
   let event;
 
   if (!endpointSecret) {
-    console.error('❌ Erro: STRIPE_WEBHOOK_SECRET não configurado.');
     return res.status(500).send('Webhook Secret missing');
   }
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
-    console.error(`❌ Webhook Error: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -40,7 +38,7 @@ app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), async (re
     const session = event.data.object;
     const { userId, plan } = session.metadata;
 
-    const { error } = await supabase
+    await supabase
       .from('subscriptions')
       .upsert({
         user_id: userId,
@@ -50,9 +48,6 @@ app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), async (re
         status: 'active',
         current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
       });
-
-    if (error) console.error('❌ Erro Supabase:', error);
-    else console.log(`✅ FATURAMENTO: Renda gerada para ${userId} no plano ${plan}`);
   }
 
   res.json({ received: true });
@@ -64,10 +59,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { plan, userId, successUrl, cancelUrl } = req.body;
     const prices = { 'Starter': 9900, 'Professional': 29900, 'Elite': 99900 };
-
-    if (!process.env.STRIPE_SECRET_KEY) {
-      throw new Error('STRIPE_SECRET_KEY não configurado na Vercel.');
-    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -90,10 +81,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     res.json({ id: session.id, url: session.url });
   } catch (error) {
-    console.error('❌ Erro Checkout:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`🚀 Sistema de Faturamento Online na porta ${PORT}`));
+module.exports = app;
